@@ -33,13 +33,13 @@ $(function () {
       data: {
           labels: _labels,
           datasets: [{
-              label: '2020 outbreak',
+              label: '2020 active cases',
               borderColor: 'rgb(75, 192, 192)',
               data: cases2020,
               borderWidth: 2
           },
           {
-              label: '2021 outbreak',
+              label: '2021 active cases',
               borderColor: 'rgb(242, 94, 95)',
               data: cases2021,
               borderWidth: 2
