@@ -3,7 +3,7 @@ $(function () {
   // collect data
 
   $.ajax({
-    url: 'api/cases.json',
+    url: (window.location.host == 'localhost') ? 'api/cases.json' : 'https://covidmoris.julienmru.workers.dev/',
     cache: true,
     dataType: 'json'
   }).done(function (data) {
