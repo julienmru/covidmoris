@@ -1,6 +1,12 @@
 $(function () {
 
+  // variables
+  var start2021 = moment('2021-03-05');
+  var end2020 = moment('2020-05-10');
+
   // collect data
+
+  var start2021_fmt = start2021.format('DD/MM/YYYY'), end2020_fmt = end2020.format('DD/MM/YYYY');
 
   $.ajax({
     url: (window.location.host == 'localhost') ? 'api/cases.json' : 'https://covidmoris.julienmru.workers.dev/',
@@ -12,16 +18,17 @@ $(function () {
       day = data.shift();
       cases2021.unshift(day.active_cases);
       labels2021.unshift(day.case_date);
-    } while(day.case_date != '05/03/2021');
+    } while(day.case_date != start2021_fmt);
     var cases2020 = [], labels2020 = []; i = 0;
     do {
       day = data.pop();
       cases2020.push(day.active_cases);
       labels2020.push(day.case_date);
-    } while(day.case_date != '10/05/2020');
-    var _labels = labels2021;
-    for (i = labels2021.length; i < labels2020.length; i++) {
-      _labels.push(labels2020[i]);
+    } while(day.case_date != end2020_fmt);
+    var _labels = [], start_date = moment(start2021);
+    for (i = 0; i < Math.max(labels2020.length, labels2021.length); i++) {
+      _labels.push(start_date.format('D/MM/YY'));
+      start_date.add(1, 'day');
     }
 
     // draw the chart
@@ -32,18 +39,22 @@ $(function () {
       type: 'line',
       data: {
           labels: _labels,
-          datasets: [{
-              label: '2020 active cases',
-              borderColor: 'rgb(75, 192, 192)',
-              data: cases2020,
-              borderWidth: 2
-          },
-          {
-              label: '2021 active cases',
-              borderColor: 'rgb(242, 94, 95)',
-              data: cases2021,
-              borderWidth: 2
-          }]
+          datasets: [
+            {
+                label: '2021 active cases',
+                borderColor: 'rgb(242, 94, 95)',
+                data: cases2021,
+                labels: labels2021,
+                borderWidth: 2
+            },
+            {
+                label: '2020 active cases',
+                borderColor: 'rgb(75, 192, 192)',
+                data: cases2020,
+                labels: labels2020,
+                borderWidth: 2
+            }
+          ]
       },
       options: {
         maintainAspectRatio: false,
@@ -51,7 +62,14 @@ $(function () {
         showLine: true,
         plugins: {
           tooltip: {
-            enabled: false
+            callbacks: {
+                title: function(context) {
+                    return context[0].dataset.labels[context[0].dataIndex];
+                },
+                label: function(context) {
+                    return context.parsed.y+' active case';
+                }
+            }
           }
         },
         elements: {
