@@ -46,11 +46,17 @@ $(function () {
           }]
       },
       options: {
+        maintainAspectRatio: false,
         responsive: true,
         showLine: true,
         plugins: {
           tooltip: {
             enabled: false
+          }
+        },
+        elements: {
+          point:{
+            radius: 1
           }
         },
         parsing: {
@@ -59,6 +65,13 @@ $(function () {
         }
       }
     });
+    $(window).on('resize', function () {
+      if ($(window).width() < 768) {
+        myChart.resize(myChart.width, myChart.width);
+      } else {
+        myChart.resize(myChart.width, myChart.width / 2);
+      }
+    }).trigger('resize');
   }).fail(function () {
     $('#main').html('<p class="text-danger text-center"><strong>Ohoh couldn’t retrieve data</strong></p>');
   });
