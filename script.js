@@ -2,7 +2,7 @@ $(function () {
 
   // variables
   var start2021 = moment('2021-03-05');
-  var end2020 = moment('2020-03-18');
+  var start2020 = moment('2020-03-18');
   var end2020 = moment('2020-05-10');
 
   // collect data
@@ -72,6 +72,13 @@ $(function () {
         maintainAspectRatio: false,
         responsive: true,
         showLine: true,
+        onResize: function (chart) {
+          if ($(window).width() < 768) {
+            chart.resize(chart.width, chart.width);
+          } else {
+            chart.resize(chart.width, chart.width / 2);
+          }
+        },
         plugins: {
           tooltip: {
             callbacks: {
@@ -86,7 +93,7 @@ $(function () {
         },
         elements: {
           point:{
-            radius: 1
+            radius: 2
           }
         },
         parsing: {
@@ -95,13 +102,6 @@ $(function () {
         }
       }
     });
-    $(window).on('resize', function () {
-      if ($(window).width() < 768) {
-        myChart.resize(myChart.width, myChart.width);
-      } else {
-        myChart.resize(myChart.width, myChart.width / 2);
-      }
-    }).trigger('resize');
   }).fail(function () {
     $('#main').html('<p class="text-danger text-center"><strong>Ohoh couldn’t retrieve data</strong></p>');
   });
