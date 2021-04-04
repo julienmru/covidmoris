@@ -20,7 +20,7 @@ $(function () {
       return;
     }
     data.sort(function (a, b) {
-      if (moment(a, 'DD/MM/YYYY').isAfter(moment(b, 'DD/MM/YYYY'))) {
+      if (moment(a.case_date, 'DD/MM/YYYY').isAfter(moment(b.case_date, 'DD/MM/YYYY'))) {
         return -1;
       } else {
         return 1;
