@@ -2,6 +2,7 @@ $(function () {
 
   // variables
   var start2021 = moment('2021-03-05');
+  var end2020 = moment('2020-03-18');
   var end2020 = moment('2020-05-10');
 
   // collect data
@@ -12,8 +13,19 @@ $(function () {
     url: (window.location.host == 'localhost') ? 'api/cases.json' : 'https://covidmoris.julienmru.workers.dev/',
     cache: true,
     dataType: 'json'
-  }).done(function (data) {
-    var cases2021 = [], labels2021 = [], i = 0;
+  }).done(function (response) {
+    var data = response.cases, cases2021 = [], labels2021 = [], i = 0;
+    if (!data) {
+      $('#main').html('<p class="text-danger text-center"><strong>Ohoh looks like beSafeMoris changed their data, please wait until I update the code.</strong></p>');
+      return;
+    }
+    data.sort(function (a, b) {
+      if (moment(a, 'DD/MM/YYYY').isAfter(moment(b, 'DD/MM/YYYY'))) {
+        return -1;
+      } else {
+        return 1;
+      }
+    });
     do {
       day = data.shift();
       cases2021.unshift(day.active_cases);
