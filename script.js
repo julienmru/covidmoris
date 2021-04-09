@@ -34,9 +34,10 @@ $(function () {
     var cases2020 = [], labels2020 = []; i = 0;
     do {
       day = data.shift();
+      console.log(day);
       day.Date = moment(day.Date);
-      cases2020.unshift(day.Active);
-      labels2020.unshift(day.Date.format('D/MM/YYYY'));
+      cases2020.push(day.Active);
+      labels2020.push(day.Date.format('D/MM/YYYY'));
       i++;
     } while(!day.Date.isSame(end2020, 'day'));
     var _labels = [], start_date = moment(start2021);
