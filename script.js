@@ -34,7 +34,6 @@ $(function () {
     var cases2020 = [], labels2020 = []; i = 0;
     do {
       day = data.shift();
-      console.log(day);
       day.Date = moment(day.Date);
       cases2020.push(day.Active);
       labels2020.push(day.Date.format('D/MM/YYYY'));
