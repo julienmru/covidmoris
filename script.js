@@ -10,7 +10,7 @@ $(function () {
   var start2021_fmt = start2021.format('DD/MM/YYYY'), end2020_fmt = end2020.format('DD/MM/YYYY');
 
   $.ajax({
-    url: 'https://api.covid19api.com/country/mauritius?from='+moment(start2020).add(-1, 'day').toISOString()+'&to='+moment().startOf('hour').toISOString(),
+    url: 'https://api.covid19api.com/country/mauritius?from='+moment(start2020).add(-1, 'day').toISOString()+'&to='+moment().startOf('day').toISOString(),
     cache: true,
     dataType: 'json'
   }).done(function (response) {
