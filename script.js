@@ -1,49 +1,102 @@
 $(function () {
 
   // variables
+  var _labels = [], cases2021 = [], labels2021 = [], cases2020 = [], labels2020 = [];
   var start2021 = moment('2021-03-05');
   var start2020 = moment('2020-03-18');
   var end2020 = moment('2020-05-10');
+  var datasource = 'besafemoris';
 
   // collect data
 
-  var start2021_fmt = start2021.format('DD/MM/YYYY'), end2020_fmt = end2020.format('DD/MM/YYYY');
+  if (datasource == 'besafemoris') {
+    var start2021_fmt = start2021.format('DD/MM/YYYY'), end2020_fmt = end2020.format('DD/MM/YYYY');
 
-  $.ajax({
-    url: 'https://api.covid19api.com/country/mauritius?from='+moment(start2020).add(-1, 'day').toISOString()+'&to='+moment().startOf('day').toISOString(),
-    cache: true,
-    dataType: 'json'
-  }).done(function (response) {
-    var data = response, cases2021 = [], labels2021 = [], i = 0;
-    if (!data) {
-      $('#main').html('<p class="text-danger text-center"><strong>Ohoh looks like we can’t retrieve the data, please try again later.</strong></p>');
-      return;
-    }
-    do {
-      day = data.pop();
-      day.Date = moment(day.Date);
-      // normalize data because 2021-03-07 went wild
-      if (i > 0 && ((day.Active - last_day.Active) / last_day.Active) > 3) {
-        day.Active = last_day.Active;
+    $.ajax({
+      url: (window.location.host == 'localhost') ? 'api/cases.json' : 'https://covidmoris.julienmru.workers.dev/',
+      cache: true,
+      dataType: 'json'
+    }).done(function (response) {
+      var data = response.cases, i = 0;
+      if (!data) {
+        $('#main').html('<p class="text-danger text-center"><strong>Ohoh looks like beSafeMoris changed their data, please wait until I update the code.</strong></p>');
+        return;
       }
-      cases2021.unshift(day.Active);
-      labels2021.unshift(day.Date.format('D/MM/YYYY'));
-      last_day = day;
-      i++;
-    } while(!day.Date.isSame(start2021, 'day'));
-    var cases2020 = [], labels2020 = []; i = 0;
-    do {
-      day = data.shift();
-      day.Date = moment(day.Date);
-      cases2020.push(day.Active);
-      labels2020.push(day.Date.format('D/MM/YYYY'));
-      i++;
-    } while(!day.Date.isSame(end2020, 'day'));
-    var _labels = [], start_date = moment(start2021);
-    for (i = 0; i < Math.max(labels2020.length, labels2021.length); i++) {
-      _labels.push(start_date.format('D/MM/YY'));
-      start_date.add(1, 'day');
-    }
+      data.sort(function (a, b) {
+        if (moment(a.case_date, 'DD/MM/YYYY').isAfter(moment(b.case_date, 'DD/MM/YYYY'))) {
+          return -1;
+        } else {
+          return 1;
+        }
+      });
+      do {
+        day = data.shift();
+        cases2021.unshift(day.active_cases);
+        labels2021.unshift(day.case_date);
+      } while(day.case_date != start2021_fmt);
+      i = 0;
+      do {
+        day = data.pop();
+        cases2020.push(day.active_cases);
+        labels2020.push(day.case_date);
+      } while(day.case_date != end2020_fmt);
+      var start_date = moment(start2021);
+      for (i = 0; i < Math.max(labels2020.length, labels2021.length); i++) {
+        _labels.push(start_date.format('D/MM/YY'));
+        start_date.add(1, 'day');
+      }
+
+      drawChart();
+    }).fail(function () {
+      $('#main').html('<p class="text-danger text-center"><strong>Ohoh couldn’t retrieve data</strong></p>');
+    });
+
+
+  } else {
+    $.ajax({
+      url: 'https://api.covid19api.com/country/mauritius?from='+moment(start2020).add(-1, 'day').toISOString()+'&to='+moment().startOf('day').toISOString(),
+      cache: true,
+      dataType: 'json'
+    }).done(function (response) {
+      var data = response, i = 0;
+      if (!data) {
+        $('#main').html('<p class="text-danger text-center"><strong>Ohoh looks like we can’t retrieve the data, please try again later.</strong></p>');
+        return;
+      }
+      do {
+        day = data.pop();
+        day.Date = moment(day.Date);
+        // normalize data because 2021-03-07 went wild
+        if (i > 0 && ((day.Active - last_day.Active) / last_day.Active) > 3) {
+          day.Active = last_day.Active;
+        }
+        cases2021.unshift(day.Active);
+        labels2021.unshift(day.Date.format('D/MM/YYYY'));
+        last_day = day;
+        i++;
+      } while(!day.Date.isSame(start2021, 'day'));
+      i = 0;
+      do {
+        day = data.shift();
+        day.Date = moment(day.Date);
+        cases2020.push(day.Active);
+        labels2020.push(day.Date.format('D/MM/YYYY'));
+        i++;
+      } while(!day.Date.isSame(end2020, 'day'));
+      let _labels = [], start_date = moment(start2021);
+      for (i = 0; i < Math.max(labels2020.length, labels2021.length); i++) {
+        _labels.push(start_date.format('D/MM/YY'));
+        start_date.add(1, 'day');
+      }
+
+      drawChart();
+    }).fail(function () {
+      $('#main').html('<p class="text-danger text-center"><strong>Ohoh looks like we can’t retrieve the data, please try again later</strong></p>');
+    });
+  }
+
+  function drawChart() {
+
 
     // draw the chart
 
@@ -104,7 +157,5 @@ $(function () {
         }
       }
     });
-  }).fail(function () {
-    $('#main').html('<p class="text-danger text-center"><strong>Ohoh looks like we can’t retrieve the data, please try again later</strong></p>');
-  });
+  }
 });
