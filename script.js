@@ -19,14 +19,20 @@ $(function () {
     datasource = $(this).attr('id');
     history.pushState(datasource, window.title, base + datasource)
     collectData(datasource);
+    trackView();
   });
   $(window).on('popstate', function (e) {
     $('.btn-group .btn-primary').removeClass('btn-primary').addClass('btn-secondary');
     $('#'+event.state).removeClass('btn-secondary').addClass('btn-primary');
     collectData(event.state);
+    trackView();
   });
 
 
+  function trackView() {
+    _paq.push(['setCustomUrl', window.location.pathname]);
+    _paq.push(['trackPageView']);
+  }
 });
 
 function collectData(datasource) {
