@@ -1,15 +1,49 @@
 $(function () {
 
+  if (window.location.host == 'localhost') {
+    var base = '/covidmoris/';
+  } else {
+    var base = '/';
+  }
+  
+  if (matches = window.location.pathname.match(/(jhu)$/)) {
+    var datasource = matches[1];
+  } else {
+    var datasource = 'besafemoris';
+  }
+  $('#'+datasource).removeClass('btn-secondary').addClass('btn-primary');
+  collectData(datasource);
+  $('.btn-group .btn').click(function () {
+    $('.btn-group .btn-primary').removeClass('btn-primary').addClass('btn-secondary');
+    $(this).removeClass('btn-secondary').addClass('btn-primary');
+    datasource = $(this).attr('id');
+    history.pushState(datasource, window.title, base + datasource)
+    collectData(datasource);
+  });
+  $(window).on('popstate', function (e) {
+    $('.btn-group .btn-primary').removeClass('btn-primary').addClass('btn-secondary');
+    $('#'+event.state).removeClass('btn-secondary').addClass('btn-primary');
+    collectData(event.state);
+  });
+
+
+});
+
+function collectData(datasource) {
+
   // variables
   var _labels = [], cases2021 = [], labels2021 = [], cases2020 = [], labels2020 = [];
   var start2021 = moment('2021-03-05');
   var start2020 = moment('2020-03-18');
   var end2020 = moment('2020-05-10');
-  var datasource = 'besafemoris';
+
+  $('#main').html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
 
   // collect data
 
   if (datasource == 'besafemoris') {
+    $('#source_attribution').html('&copy; <a href="https://besafemoris.mu/">beSafeMoris, Mauritius Telecom Ltd &amp; Ministry of Health and Wellness</a> (<a href="https://besafemoris.mu/terms-of-use/">terms of use</a>)');
+
     var start2021_fmt = start2021.format('DD/MM/YYYY'), end2020_fmt = end2020.format('DD/MM/YYYY');
 
     $.ajax({
@@ -53,6 +87,8 @@ $(function () {
 
 
   } else {
+    $('#source_attribution').html('&copy; 2020 <a href="https://github.com/CSSEGISandData/COVID-19">Johns Hopkins University CSSE COVID-19 Data</a> (license: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>)');
+
     $.ajax({
       url: 'https://api.covid19api.com/country/mauritius?from='+moment(start2020).add(-1, 'day').toISOString()+'&to='+moment().startOf('day').toISOString(),
       cache: true,
@@ -83,7 +119,7 @@ $(function () {
         labels2020.push(day.Date.format('D/MM/YYYY'));
         i++;
       } while(!day.Date.isSame(end2020, 'day'));
-      let _labels = [], start_date = moment(start2021);
+      start_date = moment(start2021);
       for (i = 0; i < Math.max(labels2020.length, labels2021.length); i++) {
         _labels.push(start_date.format('D/MM/YY'));
         start_date.add(1, 'day');
@@ -158,4 +194,4 @@ $(function () {
       }
     });
   }
-});
+}
