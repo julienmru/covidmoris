@@ -53,9 +53,10 @@ function collectData(datasource) {
     var start2021_fmt = start2021.format('DD/MM/YYYY'), end2020_fmt = end2020.format('DD/MM/YYYY');
 
     $.ajax({
-      url: (window.location.host == 'localhost') ? 'api/cases.json' : 'https://covidmoris.julienmru.workers.dev/',
+      url: 'https://besafemoris.mu/wp-json/wp/v2/getLocalCases/?is_mobile=1&from=2020-03-04&to='+moment().format('YYYY-MM-DD'),
       cache: true,
-      dataType: 'json'
+      jsonp: "_jsonp",
+      dataType: 'jsonp'
     }).done(function (response) {
       var data = response.cases, i = 0;
       if (!data) {
