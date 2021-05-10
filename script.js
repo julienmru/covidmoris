@@ -72,7 +72,7 @@ function collectData(datasource) {
       });
       do {
         day = data.shift();
-        cases2021.unshift(day.active_cases - day.death); // looks like besafemoris includes day.death 
+        cases2021.unshift(day.active_cases - 19); // we have 19 ppl I don't know where they come from
         labels2021.unshift(day.case_date);
       } while(day.case_date != start2021_fmt);
       i = 0;
@@ -113,7 +113,7 @@ function collectData(datasource) {
         if (i > 0 && ((day.Active - last_day.Active) / last_day.Active) > 3) {
           day.Active = last_day.Active;
         }
-        cases2021.unshift(day.Active - day.Deaths);
+        cases2021.unshift(day.Active - 19);
         labels2021.unshift(day.Date.format('D/MM/YYYY'));
         last_day = day;
         i++;
